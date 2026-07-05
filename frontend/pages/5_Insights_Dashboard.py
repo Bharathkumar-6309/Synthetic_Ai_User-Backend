@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.state_manager import init_session_state, has_personas
 from components.visualizations import adoption_chart, sentiment_donut, theme_bars
+from components.suggestions_panel import render_user_wants_summary, render_suggestions
 from services.api_client import extract_insights
 from styles.theme import load_css
 
@@ -32,9 +33,27 @@ if st.button("🔄 Recalculate Insights") or st.session_state.insights is None:
 
 insights = st.session_state.insights
 
-col1, col2 = st.columns(2)
-col1.metric("Would Use", f"{insights['would_use_pct']}%")
-col2.metric("Would Pay", f"{insights['would_pay_pct']}%")
+# ── Headline metrics — clear at-a-glance readout ─────────────────────────────
+st.markdown(
+    f"""
+    <div class="insight-metric-row">
+        <div class="insight-metric-card">
+            <div class="im-label">Would Use</div>
+            <div class="im-value">{insights.get('would_use_pct', 'N/A')}%</div>
+            <div class="im-sub">of simulated target users</div>
+        </div>
+        <div class="insight-metric-card">
+            <div class="im-label">Would Pay</div>
+            <div class="im-value">{insights.get('would_pay_pct', 'N/A')}%</div>
+            <div class="im-sub">willing to pay for it</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ── What users want — plain-English summary, grounded in real feedback ──────
+render_user_wants_summary(insights.get("user_wants_summary", ""))
 
 st.markdown('<div class="section-label">Theme Clusters & Sentiment</div>', unsafe_allow_html=True)
 c1, c2 = st.columns(2)
@@ -43,22 +62,29 @@ with c1:
 with c2:
     sentiment_donut(insights["sentiment"])
 
+st.markdown('<div class="section-label">💡 Suggestions To Improve The Product</div>', unsafe_allow_html=True)
+st.caption("Ranked by priority — grounded in what personas actually said in interviews and surveys.")
+render_suggestions(insights.get("suggestions", []))
+
 st.markdown('<div class="section-label">Adoption by Persona</div>', unsafe_allow_html=True)
 adoption_chart(st.session_state.personas)
 
 st.markdown('<div class="section-label">Key Quotes</div>', unsafe_allow_html=True)
+quote_cards = []
 for q in insights.get("key_quotes", []):
-    st.markdown(
+    quote_cards.append(
         f"""
-        <div class="specimen-card">
-            <div style="font-family: var(--font-display); font-style: italic; font-size: 1.05rem;">
-                \u201c{q['quote']}\u201d
-            </div>
-            <div class="specimen-meta" style="margin-top: 0.3rem;">— {q['persona']}</div>
+        <div class="quote-card-clean">
+            <span class="qmark">\u201c</span>
+            <div class="qtext">{q['quote']}</div>
+            <div class="qmeta">— {q['persona']}</div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
+if quote_cards:
+    st.markdown(f'<div class="quote-grid">{"".join(quote_cards)}</div>', unsafe_allow_html=True)
+else:
+    st.info("No quotes yet.")
 
 st.divider()
 if st.button("📄 Generate Full Report", type="primary"):

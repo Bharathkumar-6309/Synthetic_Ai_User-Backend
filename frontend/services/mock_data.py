@@ -33,6 +33,77 @@ SAMPLE_QUOTES_NEGATIVE = [
 THEMES_POOL = ["Privacy", "Speed", "Pricing", "Mobile Experience",
                "Onboarding", "Integrations", "Customer Support", "Design"]
 
+# Concrete, actionable suggestions tied to each theme users actually raised.
+# (suggestion text, category, base priority)
+SUGGESTION_LIBRARY = {
+    "Privacy": [
+        ("Publish a plain-language privacy summary during onboarding", "Trust", "high"),
+        ("Add a one-tap opt-out for data sharing with third parties", "Feature", "medium"),
+    ],
+    "Speed": [
+        ("Optimize load times for the core workflow", "Performance", "high"),
+        ("Add a lightweight or offline mode for slow connections", "Feature", "medium"),
+    ],
+    "Pricing": [
+        ("Introduce a lower-cost tier for individuals and small teams", "Pricing", "high"),
+        ("Offer an annual plan discount to ease monthly cost concerns", "Pricing", "medium"),
+    ],
+    "Mobile Experience": [
+        ("Improve mobile responsiveness for on-the-go use", "UX", "high"),
+        ("Add push notifications for key updates", "Feature", "low"),
+    ],
+    "Onboarding": [
+        ("Simplify first-time setup with a guided walkthrough", "UX", "high"),
+        ("Add sample data so users can try it before committing", "Feature", "medium"),
+    ],
+    "Integrations": [
+        ("Add integrations with the tools people already use daily", "Feature", "high"),
+        ("Provide an open API for custom integrations", "Feature", "low"),
+    ],
+    "Customer Support": [
+        ("Add live chat support for quick questions", "Support", "medium"),
+        ("Build a self-serve help center for common issues", "Support", "low"),
+    ],
+    "Design": [
+        ("Refine the visual design for a cleaner first impression", "Design", "medium"),
+        ("Add a dark mode option", "Design", "low"),
+    ],
+}
+
+
+def generate_suggestions(personas: list[dict], themes: list[dict]) -> list[dict]:
+    """Derives concrete, ranked suggestions tied to the themes users actually raised."""
+    names_pool = [p["name"] for p in personas] if personas else []
+    suggestions = []
+    for theme in themes:
+        for text, category, base_priority in SUGGESTION_LIBRARY.get(theme["theme"], []):
+            mentioned_by = (
+                random.sample(names_pool, k=min(len(names_pool), random.randint(1, min(3, len(names_pool)))))
+                if names_pool else []
+            )
+            priority = base_priority if theme["mentions_pct"] >= 35 else "low"
+            suggestions.append({
+                "suggestion": text,
+                "category": category,
+                "priority": priority,
+                "mentions_pct": theme["mentions_pct"],
+                "personas": mentioned_by,
+            })
+    order = {"high": 0, "medium": 1, "low": 2}
+    suggestions.sort(key=lambda s: order[s["priority"]])
+    return suggestions[:6]
+
+
+def generate_user_wants_summary(themes: list[dict], would_use_pct: int) -> str:
+    if not themes:
+        return "Not enough feedback yet to summarize what users want."
+    top = ", ".join(t["theme"] for t in themes[:2])
+    return (
+        f"Across interviews and surveys, {top} came up most often as what would shape "
+        f"whether people adopt this product. {would_use_pct}% said they'd use it overall, "
+        f"but turning that into real adoption depends on acting on the specific requests below."
+    )
+
 
 def _random_avatar_seed():
     return random.randint(1, 9999)
@@ -135,4 +206,6 @@ def extract_insights(personas: list[dict], survey_responses: dict, chat_history:
         "themes": theme_data,
         "sentiment": {"Positive": pos, "Neutral": neu, "Negative": neg},
         "key_quotes": quotes,
+        "suggestions": generate_suggestions(personas, theme_data),
+        "user_wants_summary": generate_user_wants_summary(theme_data, would_use_pct),
     }

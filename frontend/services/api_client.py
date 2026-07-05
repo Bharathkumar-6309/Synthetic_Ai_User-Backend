@@ -9,6 +9,7 @@ TO GO LIVE:
   3. Nothing else changes — pages import these same function names.
 """
 
+import json
 import requests
 import streamlit as st
 from config import USE_MOCK_DATA, BACKEND_BASE_URL, API_TIMEOUT_SECONDS, GROQ_API_KEY, GROQ_MODEL
@@ -155,15 +156,89 @@ def get_persona_response(persona: dict, message: str, history: list[dict]) -> st
 
 # ── Insights ──────────────────────────────────────────────────────────────────
 
+def _build_feedback_transcript(personas: list[dict], survey_responses: dict, chat_history: dict) -> str:
+    """Flattens actual survey comments + interview replies into one text block
+    so the "what users want" analysis is grounded in real feedback, not guesses."""
+    id_to_name = {p["id"]: p["name"] for p in personas}
+    lines = []
+    for q_idx, responses in (survey_responses or {}).items():
+        for pid, r in (responses or {}).items():
+            name = id_to_name.get(pid, pid)
+            lines.append(f"[Survey] {name} (score {r.get('score')}): {r.get('comment')}")
+    for pid, turns in (chat_history or {}).items():
+        name = id_to_name.get(pid, pid)
+        for turn in turns or []:
+            if turn.get("role") == "user":
+                continue
+            lines.append(f"[Interview] {name}: {turn.get('content', '')}")
+    return "\n".join(lines)[:6000]
+
+
+def _extract_suggestions_via_groq(personas: list[dict], survey_responses: dict, chat_history: dict):
+    """Asks Groq to read the real feedback transcript and return a grounded summary
+    of what users want plus concrete, prioritized suggestions. Returns None on any
+    failure so callers can fall back cleanly to the mock/heuristic version."""
+    transcript = _build_feedback_transcript(personas, survey_responses, chat_history)
+    if not transcript.strip():
+        return None
+
+    system_prompt = (
+        "You are a product research analyst reviewing raw feedback from simulated "
+        "user interviews and surveys. Respond with ONLY a JSON object — no markdown, "
+        "no code fences, no commentary before or after — in exactly this shape:\n"
+        '{"user_wants_summary": "2-3 plain-English sentences summarizing what users '
+        'want overall", "suggestions": [{"suggestion": "specific actionable improvement", '
+        '"category": "short label like Pricing, Feature, UX, Trust, Support, Performance, Design", '
+        '"priority": "high|medium|low", "personas": ["names who raised it"]}]}\n'
+        "Base every suggestion strictly on what the transcript actually says — do not "
+        "invent feedback. Return 4 to 6 suggestions, most important first."
+    )
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"Feedback transcript:\n{transcript}"},
+    ]
+    raw = _call_groq(messages, max_tokens=700)
+    if not raw:
+        return None
+
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`")
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned.split("\n", 1)[-1]
+    try:
+        data = json.loads(cleaned)
+        if isinstance(data, dict) and isinstance(data.get("suggestions"), list):
+            return data
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return None
+
+
 def extract_insights(personas: list[dict], survey_responses: dict, chat_history: dict) -> dict:
     if USE_MOCK_DATA:
-        return mock_data.extract_insights(personas, survey_responses, chat_history)
-    result = _post("/insights/extract", {
-        "persona_ids": [p["id"] for p in personas],
-        "survey_responses": survey_responses,
-        "chat_history": chat_history,
-    })
-    return result
+        insights = mock_data.extract_insights(personas, survey_responses, chat_history)
+    else:
+        insights = _post("/insights/extract", {
+            "persona_ids": [p["id"] for p in personas],
+            "survey_responses": survey_responses,
+            "chat_history": chat_history,
+        }) or {}
+
+    # When a Groq key is configured and there's real conversation/survey content,
+    # ground the "what users want" section in that actual feedback instead of the
+    # generic mock/backend version.
+    if GROQ_API_KEY and (chat_history or survey_responses):
+        grounded = _extract_suggestions_via_groq(personas, survey_responses, chat_history)
+        if grounded:
+            insights["user_wants_summary"] = grounded.get(
+                "user_wants_summary", insights.get("user_wants_summary", "")
+            )
+            insights["suggestions"] = grounded.get("suggestions", insights.get("suggestions", []))
+
+    insights.setdefault("suggestions", [])
+    insights.setdefault("user_wants_summary", "")
+    return insights
 
 
 # ── Reports ───────────────────────────────────────────────────────────────────

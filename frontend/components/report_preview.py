@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import date
+from components.suggestions_panel import render_user_wants_summary, render_suggestions
 
 
 def report_preview(experiment: dict, personas: list[dict], insights: dict):
@@ -33,6 +34,11 @@ def report_preview(experiment: dict, personas: list[dict], insights: dict):
         st.markdown('<div class="section-label">Key Insights</div>', unsafe_allow_html=True)
         for theme in insights.get("themes", []):
             st.write(f"● **{theme['theme']}** is a top concern ({theme['mentions_pct']}% mentioned)")
+
+    with st.container(border=True):
+        st.markdown('<div class="section-label">What Users Want & Suggested Improvements</div>', unsafe_allow_html=True)
+        render_user_wants_summary(insights.get("user_wants_summary", ""))
+        render_suggestions(insights.get("suggestions", []))
 
     with st.container(border=True):
         st.markdown('<div class="section-label">Key Quotes</div>', unsafe_allow_html=True)

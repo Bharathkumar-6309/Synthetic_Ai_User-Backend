@@ -68,6 +68,36 @@ def build_report_pdf(experiment: dict, personas: list[dict], insights: dict) -> 
             f"• {theme.get('theme')} — mentioned by {theme.get('mentions_pct')}% of personas", body))
     story.append(Spacer(1, 0.2 * inch))
 
+    story.append(Paragraph("What Users Want & Suggested Improvements", h2))
+    user_wants_summary = insights.get("user_wants_summary", "")
+    if user_wants_summary:
+        story.append(Paragraph(user_wants_summary, body))
+        story.append(Spacer(1, 0.1 * inch))
+    suggestions = insights.get("suggestions", [])
+    if suggestions:
+        suggestion_table_data = [["#", "Suggestion", "Category", "Priority", "Raised By"]]
+        for i, s in enumerate(suggestions, start=1):
+            suggestion_table_data.append([
+                str(i),
+                s.get("suggestion", ""),
+                s.get("category", ""),
+                (s.get("priority", "") or "").upper(),
+                ", ".join(s.get("personas", []) or []),
+            ])
+        st_table = Table(suggestion_table_data, hAlign="LEFT", repeatRows=1,
+                          colWidths=[0.25 * inch, 2.6 * inch, 0.9 * inch, 0.7 * inch, 1.55 * inch])
+        st_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2BA79B")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ]))
+        story.append(st_table)
+    else:
+        story.append(Paragraph("No suggestions available yet.", body))
+    story.append(Spacer(1, 0.2 * inch))
+
     story.append(Paragraph("Key Quotes", h2))
     for q in insights.get("key_quotes", []):
         story.append(Paragraph(f"\u201c{q.get('quote')}\u201d — {q.get('persona')}", body))
