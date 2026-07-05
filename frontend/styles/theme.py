@@ -65,8 +65,20 @@ def score_tier(score: float) -> str:
 
 
 def load_css(path: str = "styles/custom.css") -> str:
+    """Load the CSS file.
+
+    Resolves relative to this file's own directory (styles/) rather than the
+    process's current working directory, since Streamlit Cloud runs the app
+    with the repo root as cwd, not the folder containing the main script —
+    a plain relative path like "styles/custom.css" silently fails there.
+    """
+    import os
+
+    filename = os.path.basename(path)
+    here = os.path.dirname(os.path.abspath(__file__))
+    resolved = os.path.join(here, filename)
     try:
-        with open(path, "r") as f:
+        with open(resolved, "r") as f:
             return f.read()
     except FileNotFoundError:
         return ""
