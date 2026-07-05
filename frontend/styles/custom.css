@@ -1,0 +1,318 @@
+/* ============================================================
+   Synthetic User Generation Platform — "Signal" theme (Modern SaaS)
+   Design tokens live here as CSS custom properties.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --bg: #F7F7FC;
+    --bg-alt: #F0EFFB;
+    --ink: #14141F;
+    --ink-soft: #62627A;
+    --violet: #6D4FF2;
+    --violet-dark: #4B33C7;
+    --violet-tint: #ECE7FE;
+    --teal: #0FBF9F;
+    --teal-dark: #0A9A81;
+    --teal-tint: #DFF9F3;
+    --coral: #F2554F;
+    --coral-tint: #FDE4E2;
+    --card-bg: #FFFFFF;
+    --border: #E7E6F3;
+    --gradient: linear-gradient(135deg, var(--violet) 0%, var(--teal) 100%);
+    --shadow-card: 0 1px 2px rgba(20,20,31,0.04), 0 8px 24px rgba(80,70,180,0.07);
+    --shadow-card-hover: 0 4px 10px rgba(20,20,31,0.06), 0 16px 40px rgba(80,70,180,0.14);
+    --font-display: 'Sora', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', monospace;
+}
+
+/* ── Base canvas ─────────────────────────────────────────────── */
+.stApp {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 100% 0%, rgba(109,79,242,0.06) 0%, transparent 45%),
+                       radial-gradient(circle at 0% 100%, rgba(15,191,159,0.06) 0%, transparent 45%);
+    font-family: var(--font-body);
+    color: var(--ink);
+}
+
+section[data-testid="stSidebar"] {
+    background-color: #FFFFFF;
+    border-right: 1px solid var(--border);
+}
+section[data-testid="stSidebar"] * {
+    color: var(--ink) !important;
+}
+section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] small {
+    color: var(--ink-soft) !important;
+    opacity: 0.9;
+}
+
+/* ── Typography ──────────────────────────────────────────────── */
+h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+h1 { font-weight: 700; }
+h2, h3 { font-weight: 600; }
+
+.eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--violet-dark);
+    font-weight: 600;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.stButton > button {
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--ink);
+    transition: all 0.18s ease;
+}
+.stButton > button:hover {
+    border-color: var(--violet);
+    color: var(--violet-dark);
+    box-shadow: 0 2px 10px rgba(109,79,242,0.18);
+}
+.stButton > button[kind="primary"] {
+    background: var(--gradient);
+    border: none;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(109,79,242,0.35);
+}
+.stButton > button[kind="primary"]:hover {
+    filter: brightness(1.07);
+    box-shadow: 0 6px 20px rgba(109,79,242,0.45);
+    color: #FFFFFF;
+}
+
+/* ── Containers / cards ──────────────────────────────────────── */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 16px !important;
+    border: 1px solid var(--border) !important;
+    background-color: var(--card-bg);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease;
+}
+
+/* ── Metrics ─────────────────────────────────────────────────── */
+div[data-testid="stMetric"] {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    box-shadow: var(--shadow-card);
+}
+div[data-testid="stMetricValue"] {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.9rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+div[data-testid="stMetricLabel"] {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+}
+
+/* ── Inputs ──────────────────────────────────────────────────── */
+.stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
+    border-radius: 10px !important;
+    border-color: var(--border) !important;
+    font-family: var(--font-body);
+}
+.stTextInput input:focus, .stTextArea textarea:focus {
+    border-color: var(--violet) !important;
+    box-shadow: 0 0 0 3px var(--violet-tint) !important;
+}
+
+/* ── Progress bar ────────────────────────────────────────────── */
+div[data-testid="stProgress"] div[role="progressbar"] > div {
+    background: var(--gradient) !important;
+}
+
+/* ── Dataframe ───────────────────────────────────────────────── */
+div[data-testid="stDataFrame"] {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+/* ── Chat ────────────────────────────────────────────────────── */
+.stChatMessage {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+}
+
+/* ── Hero banner (Home page) ────────────────────────────────── */
+.lab-hero {
+    background: var(--gradient);
+    background-image:
+        linear-gradient(135deg, var(--violet) 0%, var(--teal) 100%),
+        radial-gradient(circle, rgba(255,255,255,0.14) 1px, transparent 1px);
+    background-size: 100% 100%, 20px 20px;
+    border-radius: 20px;
+    padding: 2.8rem 2.6rem;
+    margin-bottom: 1.4rem;
+    box-shadow: 0 10px 40px rgba(109,79,242,0.30);
+}
+.lab-hero .eyebrow { color: #FFFFFF; opacity: 0.85; }
+.lab-hero h1 {
+    color: #FFFFFF;
+    font-size: 2.7rem;
+    margin: 0.3rem 0 0.6rem 0;
+}
+.lab-hero p.tagline {
+    color: rgba(255,255,255,0.92);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    max-width: 42ch;
+    margin-bottom: 0;
+}
+.lab-hero .readout-row {
+    display: flex;
+    gap: 1.8rem;
+    margin-top: 1.6rem;
+    flex-wrap: wrap;
+}
+.lab-hero .readout {
+    font-family: var(--font-mono);
+    color: #FFFFFF;
+    border-left: 2px solid rgba(255,255,255,0.6);
+    padding-left: 0.7rem;
+}
+.lab-hero .readout .val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+.lab-hero .readout .lbl {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.78);
+}
+
+/* ── Specimen card (Persona) ────────────────────────────────── */
+.specimen-card {
+    position: relative;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem 1rem 1.2rem;
+    margin-bottom: 0.6rem;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.specimen-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+.specimen-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+    background: var(--gradient);
+}
+.specimen-id {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    margin-top: 6px;
+}
+.specimen-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0.15rem 0 0 0;
+}
+.specimen-meta {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+.score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.78rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.7rem;
+    border: 1.5px solid transparent;
+}
+.score-high { background-color: var(--teal-tint); color: var(--teal-dark); border-color: var(--teal); }
+.score-mid  { background-color: var(--violet-tint); color: var(--violet-dark); border-color: var(--violet); }
+.score-low  { background-color: var(--coral-tint); color: var(--coral); border-color: var(--coral); }
+
+.tag-pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background-color: var(--bg-alt);
+    color: var(--violet-dark);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    margin: 0.15rem 0.25rem 0 0;
+}
+
+/* ── Section eyebrow divider ─────────────────────────────────── */
+.section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--violet-dark);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+    margin: 1.2rem 0 0.8rem 0;
+    font-weight: 600;
+}
+
+/* ── Step markers (Experiment Workspace) ────────────────────── */
+.step-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--violet-dark);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+.step-marker .num {
+    background: var(--gradient);
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+}
