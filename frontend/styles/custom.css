@@ -128,8 +128,13 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     background-color: var(--surface);
     box-shadow: var(--shadow-card);
 }
-div[data-testid="stVerticalBlockBorderWrapper"] * {
-    color: var(--ink);
+div[data-testid="stVerticalBlockBorderWrapper"] p,
+div[data-testid="stVerticalBlockBorderWrapper"] span,
+div[data-testid="stVerticalBlockBorderWrapper"] div,
+div[data-testid="stVerticalBlockBorderWrapper"] label,
+div[data-testid="stVerticalBlockBorderWrapper"] .stMarkdown,
+div[data-testid="stVerticalBlockBorderWrapper"] .stCaption {
+    color: var(--ink) !important;
 }
 
 /* ── Metrics ─────────────────────────────────────────────────── */
@@ -187,7 +192,12 @@ div[data-testid="stDataFrame"] {
     background-color: var(--surface);
     box-shadow: var(--shadow-card);
 }
-.stChatMessage * { color: var(--ink); }
+.stChatMessage p,
+.stChatMessage span,
+.stChatMessage div,
+.stChatMessage .stMarkdown {
+    color: var(--ink) !important;
+}
 
 /* ── Hero banner (Home page) ────────────────────────────────── */
 .lab-hero {

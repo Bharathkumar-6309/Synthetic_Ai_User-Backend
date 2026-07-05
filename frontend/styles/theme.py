@@ -31,22 +31,22 @@ FONT_MONO = "JetBrains Mono, SFMono-Regular, monospace"
 
 # Sentiment / status — single accent hue at different weights, not multiple colors
 SENTIMENT_COLORS = {
-    "Positive": ACCENT,
+    "Positive": ACCENT_DARK,
     "Neutral": ACCENT_TINT_STRONG,
-    "Negative": BG_SOFT,
+    "Negative": INK_SOFT,
 }
 
 SCORE_TIER_COLORS = {
-    "high": ACCENT,
+    "high": ACCENT_DARK,
     "mid": ACCENT_TINT_STRONG,
-    "low": BG_SOFT,
+    "low": INK_SOFT,
 }
 
 # Discrete colorway used for multi-series/categorical charts — shades of the one accent
-COLORWAY = [ACCENT, ACCENT_DARK, ACCENT_TINT_STRONG, BG_SOFT, INK_SOFT, BORDER]
+COLORWAY = [ACCENT_DARK, ACCENT, ACCENT_TINT_STRONG, INK_SOFT, BORDER, BG_SOFT]
 
 # Continuous scale used for adoption-score bar charts
-CONTINUOUS_SCALE = [[0, SURFACE_ALT], [0.5, ACCENT_TINT_STRONG], [1, ACCENT]]
+CONTINUOUS_SCALE = [[0, SURFACE_ALT], [0.5, ACCENT_TINT_STRONG], [1, ACCENT_DARK]]
 
 # Shared Plotly layout — spread this into fig.update_layout(**PLOTLY_LAYOUT)
 PLOTLY_LAYOUT = dict(
