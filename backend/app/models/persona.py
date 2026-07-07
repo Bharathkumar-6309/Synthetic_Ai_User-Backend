@@ -55,6 +55,9 @@ class Persona(Base, UUIDPKMixin, TimestampMixin):
 
     experiment: Mapped["Experiment"] = relationship(back_populates="personas")  # noqa: F821
     responses: Mapped[list["Response"]] = relationship(back_populates="persona", cascade="all, delete-orphan")  # noqa: F821
+    interview_sessions: Mapped[list["InterviewSession"]] = relationship(  # noqa: F821
+        back_populates="persona", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Persona id={self.id} name={self.name!r} occupation={self.occupation!r}>"

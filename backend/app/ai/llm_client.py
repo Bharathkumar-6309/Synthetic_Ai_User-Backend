@@ -57,6 +57,43 @@ class LLMClient:
         response = await litellm.acompletion(**kwargs)
         return response.choices[0].message.content
 
+    async def generate_text(self, system_prompt: str, user_prompt: str, *, temperature: float | None = None) -> str:
+        """Generate plain-text completion (for conversational interview mode)."""
+        last_error: Exception | None = None
+        temp = temperature if temperature is not None else self.settings.LLM_TEMPERATURE
+
+        for candidate in self.router.candidates():
+            try:
+                if litellm is None:
+                    raise LLMUnavailableError(
+                        f"LiteLLM could not be imported: {_litellm_import_error}"
+                    ) from _litellm_import_error
+
+                kwargs = {
+                    "model": candidate.model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": temp,
+                    "max_tokens": self.settings.LLM_MAX_TOKENS,
+                    "timeout": self.settings.LLM_TIMEOUT_SECONDS,
+                }
+                if candidate.api_key:
+                    kwargs["api_key"] = candidate.api_key
+                if candidate.api_base:
+                    kwargs["api_base"] = candidate.api_base
+
+                response = await litellm.acompletion(**kwargs)
+                return response.choices[0].message.content.strip()
+            except Exception as e:  # noqa: BLE001
+                last_error = e
+                logger.warning(f"[{candidate.provider}] text call failed ({e}), trying next candidate")
+
+        raise LLMUnavailableError(
+            f"All LLM providers failed. Last error: {last_error}"
+        ) from last_error
+
     async def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         """
         Attempts each configured provider in order. Returns a parsed dict on

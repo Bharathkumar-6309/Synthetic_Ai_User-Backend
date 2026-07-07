@@ -231,7 +231,7 @@ async def get_survey_responses(survey_id: str, db: AsyncSession = Depends(get_db
                 "turn_number": response.turn_number,
                 "consistency_score": response.consistency_score,
                 "consistency_issues": response.consistency_issues,
-                "metadata": response.metadata
+                "metadata": response.response_metadata
             })
         
         # Convert to response format

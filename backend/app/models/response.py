@@ -1,22 +1,19 @@
-from sqlalchemy import Column, String, Text, ForeignKey, JSON, DateTime, Integer
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
+from sqlalchemy import Float, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.core.database import Base
 from app.models.base import TimestampMixin, UUIDPKMixin
-import uuid
 
 
 class Response(Base, UUIDPKMixin, TimestampMixin):
     __tablename__ = "responses"
 
     persona_id: Mapped[str] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("personas.id", ondelete="CASCADE"), nullable=False, index=True
+        String(64), ForeignKey("personas.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    
-    # Survey/experiment context
+
     survey_id: Mapped[str | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("surveys.id", ondelete="CASCADE"), nullable=True, index=True
+        String(64), ForeignKey("surveys.id", ondelete="CASCADE"), nullable=True, index=True
     )
     
     # Question and answer
@@ -28,7 +25,7 @@ class Response(Base, UUIDPKMixin, TimestampMixin):
     conversation_context: Mapped[dict[str, any]] = mapped_column(JSON, default=list)
     
     # Consistency tracking
-    consistency_score: Mapped[float | None] = mapped_column(Integer, nullable=True)
+    consistency_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     consistency_issues: Mapped[dict[str, any]] = mapped_column(JSON, default=list)
     
     # Response metadata

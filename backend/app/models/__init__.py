@@ -4,6 +4,8 @@ from app.models.experiment import Experiment, ExperimentStatus
 from app.models.persona import Persona
 from app.models.response import Response
 from app.models.survey import Survey, SurveyStatus
+from app.models.interview import InterviewSession
+from app.models.insight import Insight
 
 __all__ = [
     "Base",
@@ -14,4 +16,6 @@ __all__ = [
     "Response",
     "Survey",
     "SurveyStatus",
+    "InterviewSession",
+    "Insight",
 ]

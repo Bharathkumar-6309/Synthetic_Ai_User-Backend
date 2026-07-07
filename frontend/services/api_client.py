@@ -66,7 +66,14 @@ def create_experiment(product_name, description, target_audience, objectives) ->
 
 def generate_personas(experiment_id, count) -> list[dict]:
     if USE_MOCK_DATA:
-        return mock_data.generate_personas("", "", "", "", count)
+        exp = st.session_state.get("experiment") or {}
+        return mock_data.generate_personas(
+            exp.get("product_name", ""),
+            exp.get("description", ""),
+            exp.get("target_audience", ""),
+            exp.get("objectives", ""),
+            count
+        )
     result = _post("/personas/generate", {
         "experiment_id": experiment_id,
         "persona_count": count,

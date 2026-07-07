@@ -1,4 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
+
+
+def _derive_adoption_score(product_fit_score: float | None, consistency_seed: int) -> float:
+    if product_fit_score is not None:
+        return round(product_fit_score, 1)
+    return round(3.0 + (consistency_seed % 70) / 10.0, 1)
 
 
 class PersonaResponse(BaseModel):
@@ -33,6 +39,17 @@ class PersonaResponse(BaseModel):
 
     generation_source: str
     product_fit_score: float | None
+    consistency_seed: int = 0
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def tags(self) -> list[str]:
+        return self.personality_traits[:4]
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def adoption_score(self) -> float:
+        return _derive_adoption_score(self.product_fit_score, self.consistency_seed)
 
 
 class PersonaListResponse(BaseModel):

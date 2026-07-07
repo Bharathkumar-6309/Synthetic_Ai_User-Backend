@@ -1,0 +1,11 @@
+Experiment: {experiment_title}
+Product: {product_description}
+Target audience: {target_audience}
+
+Personas ({persona_count}):
+{persona_summaries}
+
+Feedback transcript:
+{feedback_transcript}
+
+Extract insights from this data.
