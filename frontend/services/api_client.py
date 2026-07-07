@@ -119,6 +119,29 @@ def run_survey_question(personas: list[dict], question: str) -> dict:
 
 # ── Interview ─────────────────────────────────────────────────────────────────
 
+def create_interview(experiment_id, persona_id) -> dict:
+    if USE_MOCK_DATA:
+        return {"id": f"interview_{abs(hash(experiment_id + persona_id)) % 100000}", "experiment_id": experiment_id, "persona_id": persona_id, "status": "active", "messages": []}
+    return _post("/interviews", {
+        "experiment_id": experiment_id,
+        "persona_id": persona_id
+    })
+
+
+def send_interview_message(interview_id, message) -> dict:
+    if USE_MOCK_DATA:
+        return {"id": interview_id, "messages": [{"role": "user", "content": message}, {"role": "assistant", "content": "Mock response"}]}
+    return _post(f"/interviews/{interview_id}/message", {
+        "message": message
+    })
+
+
+def get_interview(interview_id) -> dict:
+    if USE_MOCK_DATA:
+        return {"id": interview_id, "messages": []}
+    return _get(f"/interviews/{interview_id}")
+
+
 def _call_groq(messages: list[dict], max_tokens: int = 220) -> str:
     """Direct call to Groq's OpenAI-compatible chat completions endpoint.
 
@@ -247,6 +270,40 @@ def _extract_suggestions_via_groq(personas: list[dict], survey_responses: dict, 
     except (json.JSONDecodeError, TypeError):
         pass
     return None
+
+
+def generate_insights(experiment_id) -> dict:
+    if USE_MOCK_DATA:
+        return {
+            "id": f"insight_{abs(hash(experiment_id)) % 100000}",
+            "experiment_id": experiment_id,
+            "would_use_pct": 75,
+            "would_pay_pct": 60,
+            "themes": [{"theme": "Pricing", "mentions_pct": 40}, {"theme": "Design", "mentions_pct": 35}],
+            "sentiment": {"Positive": 50, "Neutral": 30, "Negative": 20},
+            "key_quotes": [],
+            "suggestions": [],
+            "user_wants_summary": "Users want affordable pricing with good design.",
+            "persona_scores": {}
+        }
+    return _post(f"/insights/generate/{experiment_id}", {})
+
+
+def get_insights(experiment_id) -> dict:
+    if USE_MOCK_DATA:
+        return {
+            "id": f"insight_{abs(hash(experiment_id)) % 100000}",
+            "experiment_id": experiment_id,
+            "would_use_pct": 75,
+            "would_pay_pct": 60,
+            "themes": [{"theme": "Pricing", "mentions_pct": 40}, {"theme": "Design", "mentions_pct": 35}],
+            "sentiment": {"Positive": 50, "Neutral": 30, "Negative": 20},
+            "key_quotes": [],
+            "suggestions": [],
+            "user_wants_summary": "Users want affordable pricing with good design.",
+            "persona_scores": {}
+        }
+    return _get(f"/insights/experiment/{experiment_id}")
 
 
 def extract_insights(personas: list[dict], survey_responses: dict, chat_history: dict) -> dict:

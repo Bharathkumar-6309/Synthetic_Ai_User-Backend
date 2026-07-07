@@ -15,9 +15,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "Synthetic User Generation Platform"
     ENV: Literal["dev", "staging", "prod"] = "dev"
     DEBUG: bool = True
-    # No /v1 segment: the frontend (frontend/services/api_client.py in the
-    # companion repo) calls plain /api/... paths.
-    API_PREFIX: str = "/api"
+    # API prefix includes /v1 to match frontend expectations
+    API_PREFIX: str = "/api/v1"
 
     # --- Database ---
     # Defaults to local SQLite (aiosqlite) so the service runs with zero setup.

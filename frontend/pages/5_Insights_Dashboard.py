@@ -2,7 +2,7 @@ import streamlit as st
 from utils.state_manager import init_session_state, has_personas
 from components.visualizations import adoption_chart, sentiment_donut, theme_bars
 from components.suggestions_panel import render_user_wants_summary, render_suggestions
-from services.api_client import extract_insights
+from services.api_client import generate_insights, get_insights
 from styles.theme import load_css
 
 st.set_page_config(page_title="Insights Dashboard", page_icon="📊", layout="wide")
@@ -25,11 +25,9 @@ st.caption(f"Experiment: **{st.session_state.experiment['product_name']}**")
 
 if st.button("🔄 Recalculate Insights") or st.session_state.insights is None:
     with st.spinner("Extracting insights..."):
-        st.session_state.insights = extract_insights(
-            st.session_state.personas,
-            st.session_state.survey_responses,
-            st.session_state.chat_history,
-        )
+        experiment_id = st.session_state.experiment.get("id", "")
+        insights = generate_insights(experiment_id)
+        st.session_state.insights = insights
 
 insights = st.session_state.insights
 

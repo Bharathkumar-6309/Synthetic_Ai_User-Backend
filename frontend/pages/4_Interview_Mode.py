@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.state_manager import init_session_state, has_personas, get_persona_by_id
 from components.chat_interface import chat_interface
+from services.api_client import create_interview, send_interview_message, get_interview
 from styles.theme import load_css, score_tier
 
 st.set_page_config(page_title="Interview Mode", page_icon="💬", layout="wide")
@@ -45,8 +46,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Initialize interview session if not exists
+interview_key = f"interview_{selected_id}"
+if interview_key not in st.session_state:
+    experiment_id = st.session_state.experiment.get("id", "")
+    interview = create_interview(experiment_id, selected_id)
+    st.session_state[interview_key] = interview
+
 st.divider()
-chat_interface(persona)
+chat_interface(persona, interview_key=st.session_state[interview_key].get("id", ""))
 
 st.divider()
 col1, col2 = st.columns(2)

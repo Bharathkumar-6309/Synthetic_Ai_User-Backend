@@ -20,7 +20,7 @@ if not has_personas():
     st.stop()
 
 personas = st.session_state.personas
-st.caption(f"{len(personas)} personas generated for **{st.session_state.experiment['product_name']}**")
+st.caption(f"{len(personas)} personas generated for **{st.session_state.experiment.get('title', 'the product')}**")
 
 col_f1, col_f2 = st.columns(2)
 with col_f1:
