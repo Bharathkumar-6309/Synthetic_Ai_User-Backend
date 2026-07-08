@@ -35,6 +35,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_PREFIX)
+# Compatibility: also expose routes under /api for frontend contract/tests
+app.include_router(api_router, prefix="/api")
 
 
 @app.get("/health", tags=["health"])

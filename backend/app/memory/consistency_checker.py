@@ -122,8 +122,8 @@ class ConsistencyChecker:
                 if term in answer_lower:
                     issues.append(ConsistencyIssue(
                         severity="medium",
-                        category="demographic",
-                        description=f"Tech-savviness inconsistent: using technical term '{term}'",
+                        category="tech-savviness",
+                        description=f"tech-savviness inconsistent: using technical term '{term}'",
                         details={"tech_savviness": tech_savviness, "term": term}
                     ))
         
@@ -143,7 +143,7 @@ class ConsistencyChecker:
                     issues.append(ConsistencyIssue(
                         severity="high",
                         category="opinion",
-                        description=f"Contradicts previous opinion on '{topic}'",
+                        description=f"contradicts previous opinion on '{topic}'",
                         details={
                             "topic": topic,
                             "previous": previous_answer,
@@ -247,13 +247,22 @@ class ConsistencyChecker:
             ("will", "won't"),
             ("agree", "disagree")
         ]
-        
+
+        # Require some topical overlap between the two statements to avoid false positives.
+        stopwords = {"i", "you", "the", "a", "an", "and", "or", "to", "of", "in", "on", "for", "is", "are", "that's", "that", "this"}
+        tokens1 = {w.strip(".,!?'") for w in s1_lower.split() if w not in stopwords}
+        tokens2 = {w.strip(".,!?'") for w in s2_lower.split() if w not in stopwords}
+        topical_overlap = bool(tokens1 & tokens2)
+
+        if not topical_overlap:
+            return False
+
         for word1, word2 in contradiction_pairs:
             if word1 in s1_lower and word2 in s2_lower:
                 return True
             if word2 in s1_lower and word1 in s2_lower:
                 return True
-        
+
         return False
     
     def calculate_consistency_score(self, issues: list[ConsistencyIssue]) -> float:
