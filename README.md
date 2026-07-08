@@ -312,3 +312,5 @@ pytest
 
 `tests/` includes a smoke test that runs the Persona Generation Agent end-to-end against the synthetic fallback path (no API key required) and asserts the returned personas satisfy the data model.
 
+#   S y n t h e t i c _ A i _ U s e r - B a c k e n d  
+ 
