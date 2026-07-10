@@ -16,6 +16,9 @@ langchain-core==0.3.25
 # Synthetic data / fallback generation
 Faker==33.1.0
 
+# PDF generation
+reportlab==4.2.0
+
 # Utilities
 loguru==0.7.3
 httpx

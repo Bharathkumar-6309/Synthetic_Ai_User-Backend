@@ -6,6 +6,7 @@ from app.models.response import Response
 from app.models.survey import Survey, SurveyStatus
 from app.models.interview import InterviewSession
 from app.models.insight import Insight
+from app.models.report import Report
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "SurveyStatus",
     "InterviewSession",
     "Insight",
+    "Report",
 ]

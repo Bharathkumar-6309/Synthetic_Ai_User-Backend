@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Generic, TypeVar
 
 from sqlalchemy import select
@@ -23,6 +25,11 @@ class BaseRepository(Generic[ModelT]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def list_all(self) -> list[ModelT]:
+        stmt = select(self.model)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def create(self, obj: ModelT) -> ModelT:
         self.session.add(obj)
         await self.session.flush()
@@ -31,6 +38,11 @@ class BaseRepository(Generic[ModelT]):
     async def delete(self, obj: ModelT) -> None:
         await self.session.delete(obj)
         await self.session.flush()
+
+    async def update(self, obj: ModelT) -> ModelT:
+        await self.session.flush()
+        await self.session.refresh(obj)
+        return obj
 
     async def commit(self) -> None:
         await self.session.commit()
