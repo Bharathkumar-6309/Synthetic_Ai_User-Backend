@@ -9,7 +9,7 @@ class InsightRepository(BaseRepository[Insight]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session, Insight)
 
-    async def get_latest_for_experiment(self, experiment_id: str) -> Insight | None:
+    async def get_by_experiment(self, experiment_id: str) -> Insight | None:
         stmt = (
             select(Insight)
             .where(Insight.experiment_id == experiment_id)
@@ -18,6 +18,9 @@ class InsightRepository(BaseRepository[Insight]):
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def get_latest_for_experiment(self, experiment_id: str) -> Insight | None:
+        return await self.get_by_experiment(experiment_id)
 
     async def list_for_experiment(self, experiment_id: str) -> list[Insight]:
         stmt = select(Insight).where(Insight.experiment_id == experiment_id)

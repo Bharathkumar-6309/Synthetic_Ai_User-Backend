@@ -5,6 +5,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from app.api.v1.api import api_router
+from app.api.v1.endpoints import dashboard, experiments, insights, interviews, personas, reports, surveys
+from app.api.v1.endpoints.experiments import (
+    create_experiment,
+    delete_experiment,
+    get_experiment,
+    list_experiments,
+    update_experiment,
+)
+from app.api.v1.endpoints.personas import generate_personas, get_persona, list_personas_for_experiment
 from app.core.config import get_settings
 from app.core.database import init_db
 
@@ -34,9 +43,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the main API router under the canonical v1 prefix.
 app.include_router(api_router, prefix=settings.API_PREFIX)
-# Compatibility: also expose routes under /api for frontend contract/tests
-app.include_router(api_router, prefix="/api")
+# Compatibility: also expose the same endpoints under /api for frontend contract/tests.
+app.add_api_route("/api/experiments", create_experiment, methods=["POST"], status_code=201)
+app.add_api_route("/api/experiments", list_experiments, methods=["GET"])
+app.add_api_route("/api/experiments/{experiment_id}", get_experiment, methods=["GET"])
+app.add_api_route("/api/experiments/{experiment_id}", update_experiment, methods=["PUT"])
+app.add_api_route("/api/experiments/{experiment_id}", delete_experiment, methods=["DELETE"], status_code=204)
+app.add_api_route("/api/personas/generate", generate_personas, methods=["POST"], status_code=201)
+app.add_api_route("/api/personas/experiment/{experiment_id}", list_personas_for_experiment, methods=["GET"])
+app.add_api_route("/api/personas/{persona_id}", get_persona, methods=["GET"])
 
 
 @app.get("/health", tags=["health"])

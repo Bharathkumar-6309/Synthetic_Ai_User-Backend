@@ -23,6 +23,12 @@ class QuoteInsight(BaseModel):
     quote: str
     persona: str
 
+    def __contains__(self, item: str) -> bool:
+        return item in self.model_dump()
+
+    def __getitem__(self, item: str) -> str:
+        return self.model_dump()[item]
+
 
 class SuggestionInsight(BaseModel):
     suggestion: str
@@ -152,27 +158,46 @@ class InsightAgent:
 
         lines = [ln.strip() for ln in transcript.split("\n") if ln.strip()]
         for line in lines[:4]:
-            if "]" in line:
-                parts = line.split("]:", 1)
-                if len(parts) == 2:
-                    name = parts[0].split("[")[-1].strip()
-                    base.key_quotes.append(QuoteInsight(quote=parts[1].strip()[:200], persona=name))
+            if "]" in line and ":" in line:
+                prefix, quote = line.split(":", 1)
+                raw_name = prefix.split("]")[-1].strip()
+                name = raw_name.replace("Survey", "").replace("Interview", "").strip() or "Persona"
+                quote_text = quote.strip()[:200]
+                if quote_text:
+                    base.key_quotes.append(QuoteInsight(quote=quote_text, persona=name))
 
-        pos_words = ["love", "great", "excited", "would use", "recommend", "save"]
-        neg_words = ["concern", "expensive", "complex", "wouldn't", "skeptical", "privacy"]
+        pos_words = ["love", "great", "excited", "would use", "recommend", "save", "amazing", "excellent", "good", "smooth", "intuitive", "useful"]
+        neg_words = ["concern", "expensive", "complex", "wouldn't", "skeptical", "privacy", "terrible", "disappointed", "bad", "issue", "problem"]
         pos = sum(1 for w in pos_words if w in transcript_lower)
         neg = sum(1 for w in neg_words if w in transcript_lower)
         neu = max(1, len(lines) - pos - neg)
         total_sent = pos + neg + neu
         base.sentiment = {
-            "Positive": round(pos / total_sent * 100),
-            "Neutral": round(neu / total_sent * 100),
-            "Negative": round(neg / total_sent * 100),
+            "Positive": max(1, round(pos / total_sent * 100)),
+            "Neutral": max(1, round(neu / total_sent * 100)),
+            "Negative": max(1, round(neg / total_sent * 100)),
         }
 
+        if neg > pos:
+            base.would_use_pct = max(20, base.would_use_pct - 10)
+            base.would_pay_pct = max(10, base.would_pay_pct - 15)
+        elif pos > 0:
+            base.would_use_pct = min(95, base.would_use_pct + 10)
+            base.would_pay_pct = min(90, base.would_pay_pct + 10)
+
         top_themes = ", ".join(t.theme for t in base.themes[:2]) or "product fit"
-        base.user_wants_summary = (
-            f"Across feedback, {top_themes} emerged as key factors. "
-            f"{base.would_use_pct}% of personas indicated they would use this product."
-        )
+        keywords = []
+        for keyword in ["tracking", "meal", "plan", "simplicity", "workout", "pricing", "mobile", "support", "privacy", "design"]:
+            if keyword in transcript_lower:
+                keywords.append(keyword)
+
+        if keywords:
+            base.user_wants_summary = (
+                f"Users are asking for better {', '.join(keywords[:4])} support in the product experience."
+            )
+        else:
+            base.user_wants_summary = (
+                f"Across feedback, {top_themes} emerged as key factors. "
+                f"{base.would_use_pct}% of personas indicated they would use this product."
+            )
         return base
