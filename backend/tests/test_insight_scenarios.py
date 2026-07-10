@@ -91,6 +91,33 @@ class TestInsightExtractionScenarios:
         assert len(result.persona_scores) == len(diverse_personas)
 
     @pytest.mark.asyncio
+    async def test_fallback_handles_missing_persona_scores(self, agent, tech_startup_experiment):
+        """Fallback extraction should not crash when persona scores are missing or None."""
+        personas = [
+            {
+                "id": "p1",
+                "name": "Alex",
+                "age": 28,
+                "occupation": "Engineer",
+                "personality_traits": ["curious"],
+                "core_values": ["efficiency"],
+                "bio": "Test persona",
+                "adoption_score": None,
+                "product_fit_score": None,
+            }
+        ]
+
+        result = await agent.extract(
+            experiment=tech_startup_experiment,
+            personas=personas,
+            feedback_transcript="",
+        )
+
+        assert isinstance(result, InsightResult)
+        assert result.persona_scores["p1"] >= 0
+        assert result.persona_scores["p1"] <= 10
+
+    @pytest.mark.asyncio
     async def test_insight_extraction_with_positive_feedback(self, agent, tech_startup_experiment, diverse_personas):
         """Test insight extraction with positive feedback transcript."""
         transcript = """

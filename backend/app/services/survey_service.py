@@ -116,3 +116,25 @@ class SurveyService:
         """Get all responses from a specific persona for a survey."""
         survey = await self.get(survey_id)
         return await self.response_repo.list(persona_id=persona_id, survey_id=survey_id)
+
+    async def generate_responses_for_survey(self, survey_id: str) -> list[Response]:
+        """Seed a survey with simple persona responses for demo and testing."""
+        survey = await self.get(survey_id)
+        personas = await self.persona_repo.list_for_experiment(survey.experiment_id)
+
+        responses: list[Response] = []
+        for persona in personas:
+            for question in survey.questions:
+                response = await self.add_response(
+                    survey_id=survey.id,
+                    persona_id=str(persona.id),
+                    question_text=question,
+                    answer_text=(
+                        f"{persona.name} sees value in the product and would likely try it if onboarding stays simple."
+                        if "product" in question.lower() or "use" in question.lower()
+                        else f"{persona.name} is interested in the concept and wants clear guidance."
+                    ),
+                )
+                responses.append(response)
+
+        return responses

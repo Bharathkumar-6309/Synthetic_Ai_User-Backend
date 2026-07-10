@@ -91,8 +91,8 @@ class InsightService:
                 "personality_traits": p.personality_traits,
                 "core_values": p.core_values,
                 "bio": p.bio,
-                "adoption_score": p.adoption_score,
-                "product_fit_score": p.product_fit_score,
+                "adoption_score": getattr(p, "adoption_score", None),
+                "product_fit_score": getattr(p, "product_fit_score", None),
             }
             for p in personas
         ]

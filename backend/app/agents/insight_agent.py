@@ -117,10 +117,19 @@ class InsightAgent:
         )
 
     def _fallback_from_personas(self, personas: list[dict]) -> InsightResult:
-        scores = [
-            float(p.get("adoption_score", p.get("product_fit_score", 6.0)))
-            for p in personas
-        ] or [6.0]
+        normalized_scores = []
+        for p in personas:
+            score = p.get("adoption_score")
+            if score is None:
+                score = p.get("product_fit_score")
+            if score is None:
+                score = 6.0
+            try:
+                normalized_scores.append(float(score))
+            except (TypeError, ValueError):
+                normalized_scores.append(6.0)
+
+        scores = normalized_scores or [6.0]
         would_use = round(sum(1 for s in scores if s >= 6) / len(scores) * 100)
         would_pay = max(0, would_use - random.randint(5, 15))
         themes = random.sample(THEMES_POOL, k=min(4, len(THEMES_POOL)))
@@ -135,7 +144,7 @@ class InsightAgent:
             key_quotes=[],
             suggestions=[],
             user_wants_summary="Not enough survey or interview feedback yet to extract detailed themes.",
-            persona_scores={p["id"]: float(p.get("adoption_score", 6.0)) for p in personas},
+            persona_scores={p["id"]: (float(p.get("adoption_score") or p.get("product_fit_score") or 6.0)) for p in personas},
         )
 
     def _heuristic_extract(self, personas: list[dict], transcript: str) -> InsightResult:
