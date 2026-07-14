@@ -315,4 +315,4 @@ Developed by the Infosys Internship Project Team.
 
 ## Acknowledgements
 
-Special thanks to the Infosys VidzAI Digital Internship Program for providing the opportunity to build an AI-powered synthetic user research platform that combines Generative AI, agentic workflows, and modern backend technologies to simulate realistic user behavior and accelerate product validation.
+Special thanks to the Infosys Internship Program for providing the opportunity to build an AI-powered synthetic user research platform that combines Generative AI, agentic workflows, and modern backend technologies to simulate realistic user behavior and accelerate product validation.
