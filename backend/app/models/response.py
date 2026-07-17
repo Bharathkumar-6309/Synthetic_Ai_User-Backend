@@ -24,6 +24,10 @@ class Response(Base, UUIDPKMixin, TimestampMixin):
     turn_number: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     conversation_context: Mapped[dict[str, any]] = mapped_column(JSON, default=list)
     
+    # Rating
+    rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    reasoning: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
     # Consistency tracking
     consistency_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     consistency_issues: Mapped[dict[str, any]] = mapped_column(JSON, default=list)

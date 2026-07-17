@@ -19,6 +19,7 @@ class PersonaResponse(BaseModel):
     question: str
     answer: str
     confidence: float = Field(ge=0.0, le=1.0)
+    rating: int | None = Field(default=None, ge=1, le=10)
     reasoning: str | None = None
 
 
@@ -65,6 +66,7 @@ class SurveyResponseAgent:
             
             answer = result.get("answer", "")
             confidence = result.get("confidence", 0.8)
+            rating = result.get("rating")
             reasoning = result.get("reasoning")
             
             return PersonaResponse(
@@ -72,6 +74,7 @@ class SurveyResponseAgent:
                 question=question,
                 answer=answer,
                 confidence=confidence,
+                rating=rating,
                 reasoning=reasoning
             )
         except Exception as e:
@@ -81,6 +84,7 @@ class SurveyResponseAgent:
                 question=question,
                 answer=self._generate_fallback_response(persona_attributes, question),
                 confidence=0.5,
+                rating=5,
                 reasoning="LLM unavailable, using fallback"
             )
     

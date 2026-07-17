@@ -26,15 +26,16 @@ class TestSurveyIntegration:
         # Create experiment
         from app.services.experiment_service import ExperimentService
         exp_service = ExperimentService(db_session)
+        from app.schemas.request.experiment import ExperimentCreateRequest
         experiment = await exp_service.create(
             owner_id="test-user",
-            payload={
-                "title": "Test Experiment",
-                "product_description": "Test product",
-                "target_audience": "Test audience",
-                "research_objectives": "Test objectives",
-                "persona_count": 3
-            }
+            payload=ExperimentCreateRequest(
+                title="Test Experiment",
+                product_description="Test product",
+                target_audience="Test audience",
+                research_objectives="Test objectives",
+                persona_count=3
+            )
         )
         
         # Generate personas
@@ -43,7 +44,7 @@ class TestSurveyIntegration:
         
         # Update experiment status
         experiment.status = ExperimentStatus.PERSONAS_READY
-        await exp_service.experiment_repo.commit()
+        await exp_service.repo.commit()
         
         # Create survey
         survey_service = SurveyService(db_session)
@@ -177,7 +178,7 @@ class TestSurveyIntegration:
     
     async def test_consistency_validation_integration(self, db_session: AsyncSession):
         """Test consistency validation in the context of survey responses."""
-        checker = ConsistencyChecker()
+        checker = SurveyResponseAgent()
         
         persona_attrs = {
             "age": 25,
@@ -285,20 +286,21 @@ class TestSurveyEdgeCases:
         exp_service = ExperimentService(db_session)
         survey_service = SurveyService(db_session)
         
+        from app.schemas.request.experiment import ExperimentCreateRequest
         # Create experiment without personas
         experiment = await exp_service.create(
             owner_id="test-user",
-            payload={
-                "title": "Test Experiment",
-                "product_description": "Test product",
-                "target_audience": "Test audience",
-                "research_objectives": "Test objectives",
-                "persona_count": 3
-            }
+            payload=ExperimentCreateRequest(
+                title="Test Experiment",
+                product_description="Test product",
+                target_audience="Test audience",
+                research_objectives="Test objectives",
+                persona_count=3
+            )
         )
         
         # Try to create survey - should fail
-        with pytest.raises(ValueError, match="No personas found"):
+        with pytest.raises(ValueError, match="Experiment must have personas ready to create a survey"):
             await survey_service.create(
                 experiment_id=experiment.id,
                 title="Test Survey",

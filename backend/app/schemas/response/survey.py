@@ -14,8 +14,15 @@ class SurveyResponse(BaseModel):
     status: str
     total_personas: int
     completed_responses: int
+    avg_rating: float | None = None
     created_at: str
     updated_at: str
+    
+    
+class RatingResponse(BaseModel):
+    rating: int | None
+    reasoning: str | None
+    elaboration: str
 
 
 class SurveyListResponse(BaseModel):
@@ -36,4 +43,5 @@ class SurveyExecutionResponse(BaseModel):
     survey_id: str
     total_personas: int
     completed_responses: int
+    avg_rating: float | None = None
     persona_responses: list[PersonaSurveyResponse]

@@ -164,6 +164,8 @@ async def execute_survey(
         
         # Store responses in database
         persona_responses = []
+        total_rating = 0
+        rating_count = 0
         for persona_id, responses in batch_responses.items():
             # Get persona name
             persona = next((p for p in personas if str(p.id) == persona_id), personas[0])
@@ -177,14 +179,21 @@ async def execute_survey(
                     question_text=response.question,
                     answer_text=response.answer,
                     turn_number=idx + 1,
+                    rating=response.rating,
+                    reasoning=response.reasoning,
                     response_metadata={"confidence": response.confidence, "reasoning": response.reasoning}
                 )
+                
+                if response.rating is not None:
+                    total_rating += response.rating
+                    rating_count += 1
                 
                 response_list.append({
                     "question": response.question,
                     "answer": response.answer,
-                    "confidence": response.confidence,
-                    "reasoning": response.reasoning
+                    "rating": response.rating,
+                    "reasoning": response.reasoning,
+                    "confidence": response.confidence
                 })
             
             persona_responses.append(PersonaSurveyResponse(
@@ -195,12 +204,15 @@ async def execute_survey(
         
         # Update survey status to completed
         survey.status = SurveyStatus.COMPLETED
+        if rating_count > 0:
+            survey.avg_rating = round(total_rating / rating_count, 2)
         await service.survey_repo.commit()
         
         return SurveyExecutionResponse(
             survey_id=survey.id,
             total_personas=survey.total_personas,
             completed_responses=survey.completed_responses,
+            avg_rating=survey.avg_rating,
             persona_responses=persona_responses
         )
         
@@ -228,6 +240,8 @@ async def get_survey_responses(survey_id: str, db: AsyncSession = Depends(get_db
             persona_responses_map[persona_id].append({
                 "question": response.question_text,
                 "answer": response.answer_text,
+                "rating": response.rating,
+                "reasoning": response.reasoning,
                 "turn_number": response.turn_number,
                 "consistency_score": response.consistency_score,
                 "consistency_issues": response.consistency_issues,
@@ -249,6 +263,7 @@ async def get_survey_responses(survey_id: str, db: AsyncSession = Depends(get_db
             "survey_id": survey_id,
             "total_personas": survey.total_personas,
             "completed_responses": survey.completed_responses,
+            "avg_rating": survey.avg_rating,
             "persona_responses": persona_responses
         }
     except NotFoundError as e:

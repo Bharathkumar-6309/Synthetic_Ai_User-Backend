@@ -2,4 +2,4 @@ Question: {question}
 
 {previous_opinions}
 
-Provide your response as this persona.
+Provide your response as this persona. Ensure you return valid JSON containing "rating", "reasoning", and "answer".

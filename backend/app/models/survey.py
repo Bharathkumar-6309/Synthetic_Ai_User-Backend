@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import enum
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text, JSON
+from sqlalchemy import Enum, Float, ForeignKey, Integer, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -42,6 +42,7 @@ class Survey(Base, UUIDPKMixin, TimestampMixin):
     # Response tracking
     total_personas: Mapped[int] = mapped_column(Integer, default=0)
     completed_responses: Mapped[int] = mapped_column(Integer, default=0)
+    avg_rating: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     experiment: Mapped["Experiment"] = relationship(back_populates="surveys")  # noqa: F821
     responses: Mapped[list["Response"]] = relationship(back_populates="survey", cascade="all, delete-orphan")  # noqa: F821

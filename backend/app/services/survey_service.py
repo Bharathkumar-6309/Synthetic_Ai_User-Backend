@@ -85,6 +85,8 @@ class SurveyService:
         conversation_context: dict | None = None,
         consistency_score: float | None = None,
         consistency_issues: dict | None = None,
+        rating: int | None = None,
+        reasoning: str | None = None,
         response_metadata: dict | None = None
     ) -> Response:
         """Add a response to a survey."""
@@ -99,6 +101,8 @@ class SurveyService:
             conversation_context=conversation_context or [],
             consistency_score=consistency_score,
             consistency_issues=consistency_issues or [],
+            rating=rating,
+            reasoning=reasoning,
             response_metadata=response_metadata or {}
         )
         await self.response_repo.create(response)
