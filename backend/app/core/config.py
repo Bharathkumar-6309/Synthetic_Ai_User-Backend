@@ -19,10 +19,9 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api/v1"
 
     # --- Database ---
-    # Defaults to local SQLite (aiosqlite) so the service runs with zero setup.
-    # Point this at Postgres/Neon in staging/prod, e.g.:
-    # postgresql+asyncpg://user:pass@host:5432/dbname
-    DATABASE_URL: str = "sqlite+aiosqlite:///./vidzai.db"
+    # Uses MySQL with the async aiomysql driver.
+    # Format: mysql+aiomysql://user:password@host:3306/dbname
+    DATABASE_URL: str = "mysql+aiomysql://root:bharath@localhost:3306/synthetic_ai_user"
     DATABASE_ECHO: bool = False
 
     # --- Auth (wired in a later milestone, present now for config completeness) ---

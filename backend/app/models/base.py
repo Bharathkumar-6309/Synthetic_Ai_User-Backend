@@ -2,7 +2,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -12,6 +12,7 @@ def _utcnow() -> datetime:
 
 class UUIDPKMixin:
     id: Mapped[str] = mapped_column(
+        String(36),  # MySQL requires explicit VARCHAR length; UUID is always 36 chars
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
     )

@@ -1,7 +1,6 @@
 """
 Async SQLAlchemy engine + session factory.
-Works against SQLite (dev/default) or Postgres (staging/prod) transparently,
-since both connect strings are async-driver based (aiosqlite / asyncpg).
+Uses MySQL with the aiomysql async driver (mysql+aiomysql).
 """
 from collections.abc import AsyncGenerator
 
