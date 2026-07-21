@@ -32,8 +32,18 @@ class InterviewAgent:
             attributes=persona_attributes,
         )
 
+        # Convert history to conversation context format for the prompt
+        conversation_context = []
+        for i in range(0, len(history) - 1, 2):  # Process in pairs (user, assistant)
+            if i + 1 < len(history):
+                if history[i].get("role") == "user" and history[i + 1].get("role") == "assistant":
+                    conversation_context.append({
+                        "question": history[i].get("content", ""),
+                        "answer": history[i + 1].get("content", ""),
+                    })
+
         system_prompt = self._build_system_prompt(
-            persona_attributes, product_context, memory.get_conversation_context(max_turns=5)
+            persona_attributes, product_context, conversation_context
         )
         user_prompt = PromptManager.render(
             "interview/user.txt",

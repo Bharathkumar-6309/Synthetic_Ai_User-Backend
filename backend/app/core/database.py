@@ -43,6 +43,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db() -> None:
-    """Create tables on startup. Fine for SQLite/dev; migrations own this in prod."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """
+    Database initialization.
+    
+    Tables are created via SQL scripts (sql/schema.sql and sql/seed.sql).
+    Run: python scripts/setup_database.py
+    
+    This function is kept for compatibility but no longer auto-creates tables.
+    """
+    # Tables are now managed via SQL scripts
+    # Run: python scripts/setup_database.py to initialize the database
+    pass

@@ -42,7 +42,7 @@ class ReportService:
         personas = await self.persona_repo.list_for_experiment(experiment_id)
         
         # Get insights
-        insight = await self.insight_repo.get_by_experiment(experiment_id)
+        insight = await self.insight_repo.get_latest_for_experiment(experiment_id)
         
         # Get survey responses for highlights
         surveys = await self.survey_repo.list_for_experiment(experiment_id)
