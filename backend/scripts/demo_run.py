@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.agents.interview_agent import InterviewAgent
 from app.core.database import Base
+from app.core.config import get_settings
 from app.models.experiment import Experiment, ExperimentStatus
 from app.models.persona import Persona
 from app.services.insight_service import InsightService
@@ -16,7 +17,8 @@ from app.services.interview_service import InterviewService
 from app.services.persona_service import PersonaService
 from app.services.survey_service import SurveyService
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+_settings = get_settings()
+DEMO_DATABASE_URL = _settings.DATABASE_URL  # MySQL — same DB as the application
 
 
 async def _create_demo_experiment(session: AsyncSession) -> Experiment:
@@ -89,7 +91,7 @@ async def _run_demo_interviews(session: AsyncSession, experiment: Experiment, pe
 
 
 async def main() -> None:
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    engine = create_async_engine(DEMO_DATABASE_URL, echo=False)
     AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
     async with engine.begin() as conn:

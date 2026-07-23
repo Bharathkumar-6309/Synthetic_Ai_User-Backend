@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from typing import AsyncGenerator
 
 from app.core.database import Base
+from app.core.config import get_settings
 from app.models.experiment import Experiment
 from app.models.persona import Persona
 from app.models.survey import Survey
@@ -12,11 +13,14 @@ from app.models.interview import InterviewSession
 from app.models.insight import Insight
 from app.models.report import Report
 
-# Create a fresh in-memory SQLite DB for tests
+settings = get_settings()
+
+# Use MySQL (aiomysql) for all tests — same DB as the application.
+# Tables are created fresh before each test and dropped afterwards.
 test_engine = create_async_engine(
-    "sqlite+aiosqlite:///:memory:", 
-    echo=False, 
-    future=True
+    settings.DATABASE_URL,
+    echo=False,
+    future=True,
 )
 
 TestSessionLocal = async_sessionmaker(

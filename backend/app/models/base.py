@@ -22,9 +22,8 @@ class TimestampMixin:
     # Python-side defaults (not server_default/onupdate=func.now()) on purpose:
     # server-generated onupdate values require SQLAlchemy to refresh the
     # attribute from the DB after flush/commit, which triggers a synchronous
-    # round-trip that raises MissingGreenlet under the async SQLite driver.
-    # Python-side defaults avoid that refresh entirely and work identically
-    # against Postgres.
+    # round-trip under certain async drivers. Python-side defaults avoid that
+    # refresh entirely and work correctly with the async aiomysql (MySQL) driver.
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
